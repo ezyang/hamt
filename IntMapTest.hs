@@ -1,4 +1,7 @@
+import System
 import Data.IntMap
 
-main = print $ m ! 100
-    where m = fromList [(i,i) | i <- [1..1000000]] :: IntMap Int
+main = do
+    args <- getArgs
+    let m = fromList [(i,i) | i <- [1..(read $ head args)]] :: IntMap Int
+    print $ m ! 100

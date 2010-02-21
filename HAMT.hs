@@ -1,11 +1,11 @@
 {-# OPTIONS -cpp -fglasgow-exts #-}
 {-# LANGUAGE NoBangPatterns #-}
 
+module HAMT where
+
 import Prelude hiding (lookup, (++), take, drop)
 import Data.Vector hiding (empty, fromList, foldl)
 import Data.Bits
-
-import System.IO.Unsafe
 
 import PopCount
 
@@ -110,8 +110,4 @@ insert' kx s x t
 -- too lazy
 fromList :: [(Key, a)] -> HAMT a
 fromList = foldl (flip $ uncurry insert) empty
-
--- Simple profiling mechanism
-main = print (lookup 100 m)
-    where m = fromList [(i,i) | i <- [1..1000000]] :: HAMT Word
 
