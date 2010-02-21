@@ -1,0 +1,58 @@
+	Sun Feb 21 05:03 2010 Time and Allocation Profiling Report  (Final)
+
+	   HAMT +RTS -K1G -p -RTS
+
+	total time  =        3.70 secs   (185 ticks @ 20 ms)
+	total alloc = 1,150,205,404 bytes  (excludes profiling overheads)
+
+COST CENTRE                    MODULE               %time %alloc
+
+popCount                       Main                  49.2   48.5
+insert'                        Main                  35.1   35.6
+main                           Main                   5.9    8.7
+keyIndex                       Main                   2.7    1.8
+fromList                       Main                   2.2    2.1
+maskIndex                      Main                   1.6    0.7
+shiftRL                        Main                   1.1    0.7
+myIndex                        Main                   1.1    0.5
+mask                           Main                   1.1    0.7
+
+
+                                                                                               individual    inherited
+COST CENTRE              MODULE                                               no.    entries  %time %alloc   %time %alloc
+
+MAIN                     MAIN                                                   1           0   0.0    0.0   100.0  100.0
+ main                    Main                                                 206           1   0.0    0.0     0.0    0.0
+ CAF                     Main                                                 200          12   0.0    0.0   100.0  100.0
+  popCount               Main                                                 226           4   0.0    0.0     0.0    0.0
+  bitsPerSubkey          Main                                                 217           1   0.0    0.0     0.0    0.0
+  subkeyMask             Main                                                 216           1   0.0    0.0     0.0    0.0
+  main                   Main                                                 207           0   5.9    8.7   100.0  100.0
+   fromList              Main                                                 210           1   2.2    2.1    94.1   91.3
+    insert               Main                                                 212     1000000   0.0    0.0    91.9   89.2
+     insert'             Main                                                 213     1032259  35.1   35.6    91.9   89.2
+      myIndex            Main                                                 234       32255   1.1    0.5     1.1    0.5
+      keyIndex           Main                                                 230     2064262   2.7    1.8    54.6   51.7
+       mask              Main                                                 233     1032131   1.1    0.7     1.1    0.7
+       maskIndex         Main                                                 231     1032131   1.6    0.7    50.8   49.2
+        popCount         Main                                                 232     1032131  49.2   48.5    49.2   48.5
+      maskIndex          Main                                                 228         123   0.0    0.0     0.0    0.0
+       popCount          Main                                                 229         123   0.0    0.0     0.0    0.0
+      mask               Main                                                 218         127   0.0    0.0     0.0    0.0
+      subkey             Main                                                 214     1032258   0.0    0.7     1.1    1.4
+       shiftRL           Main                                                 215     1032258   1.1    0.7     1.1    0.7
+    empty                Main                                                 211           1   0.0    0.0     0.0    0.0
+   lookup                Main                                                 208           1   0.0    0.0     0.0    0.0
+    lookup'              Main                                                 209           5   0.0    0.0     0.0    0.0
+     bitmapLookup        Main                                                 219           8   0.0    0.0     0.0    0.0
+      keyIndex           Main                                                 223           8   0.0    0.0     0.0    0.0
+       mask              Main                                                 227           4   0.0    0.0     0.0    0.0
+       maskIndex         Main                                                 224           4   0.0    0.0     0.0    0.0
+        popCount         Main                                                 225           4   0.0    0.0     0.0    0.0
+      myIndex            Main                                                 222           4   0.0    0.0     0.0    0.0
+      subkey             Main                                                 220           4   0.0    0.0     0.0    0.0
+       shiftRL           Main                                                 221           4   0.0    0.0     0.0    0.0
+ CAF                     GHC.Show                                             196           1   0.0    0.0     0.0    0.0
+ CAF                     GHC.Word                                             165           1   0.0    0.0     0.0    0.0
+ CAF                     GHC.Handle                                           151           2   0.0    0.0     0.0    0.0
+ CAF                     GHC.Conc                                             150           1   0.0    0.0     0.0    0.0

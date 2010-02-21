@@ -1,0 +1,6 @@
+*.hi
+*.o
+*.so
+PopCountTest
+IntMapTest
+HAMT

@@ -1,0 +1,1 @@
+int popcount(unsigned int);

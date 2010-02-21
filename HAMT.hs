@@ -7,6 +7,8 @@ import Data.Bits
 
 import System.IO.Unsafe
 
+import PopCount
+
 #if __GLASGOW_HASKELL__ >= 503
 import GHC.Word
 import GHC.Exts ( Word(..), Int(..), shiftRL# )
@@ -36,15 +38,6 @@ shiftRL (W# x) (I# i) = W# (shiftRL# x i)
 #else
 shiftRL x i = shiftR x i
 #endif
-
--- Cribbed from http://hackage.haskell.org/trac/ghc/ticket/3563
--- We should figure out what its performance characteristics are
-popCount :: Word -> Int
-popCount x = count' (bitSize x) x 0
-  where
-  count' 0 _ acc = acc
-  count' n x acc = count' (n-1) (x `shiftRL` 1) (acc + if x .&. 1 == 1 then 1 else 0)
-                -- this weird if/else is to preserve the nice type signature :)
 
 data HAMT a = Empty
             | BitmapIndexed {-# UNPACK #-} !Bitmap (Vector (HAMT a))
@@ -118,7 +111,7 @@ insert' kx s x t
 fromList :: [(Key, a)] -> HAMT a
 fromList = foldl (flip $ uncurry insert) empty
 
--- Some testing stuff
+-- Simple profiling mechanism
 main = print (lookup 100 m)
     where m = fromList [(i,i) | i <- [1..1000000]] :: HAMT Word
 
