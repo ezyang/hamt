@@ -12,9 +12,9 @@ IntMapTest: IntMapTest.hs
 	${GHC} IntMapTest.hs
 IntMapTest-prof: IntMapTest.hs
 	${GHC} IntMapTest.hs -o IntMapTest-prof ${GHCPROF}
-HAMTTest: popcount.o HAMTTest.hs PopCount.hs
+HAMTTest: popcount.o HAMTTest.hs HAMT.hs PopCount.hs
 	${GHC} HAMTTest.hs popcount.o
-HAMTTest-prof: popcount.o HAMTTest.hs PopCount.hs
+HAMTTest-prof: popcount.o HAMT.hs HAMTTest.hs PopCount.hs
 	${GHC} HAMTTest.hs -o HAMTTest-prof popcount.o ${GHCPROF}
 ghci: libpopcount.so HAMT.hs PopCount.hs
 	ghci -lffi -lpopcount HAMT
