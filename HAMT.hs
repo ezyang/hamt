@@ -25,13 +25,18 @@ subkeyMask = 1 `shiftL` bitsPerSubkey - 1
 data HAMT a = Empty
             | BitmapIndexed {-# UNPACK #-} !Bitmap !(Vector (HAMT a))
             | Leaf {-# UNPACK #-} !Key a
+            | Full {-# UNPACK #-} !(Vector (HAMT a))
     deriving (Show)
 
 maskIndex :: Bitmap -> Bitmap -> Int
 maskIndex b m = popCount (b .&. (m - 1))
 
 mask :: Key -> Shift -> Bitmap
-mask k s = shiftL 1 (fromIntegral $ shiftR k s .&. subkeyMask)
+mask k s = shiftL 1 (subkey k s)
+
+{-# INLINE subkey #-}
+subkey :: Key -> Shift -> Int
+subkey k s = fromIntegral $ shiftR k s .&. subkeyMask
 
 empty :: HAMT a
 empty = Empty
@@ -51,6 +56,7 @@ lookup' k s t
             if b .&. m == 0
                 then Nothing
                 else lookup' k (s+bitsPerSubkey) (unsafeIndex v (maskIndex b m))
+        Full v -> lookup' k (s+bitsPerSubkey) (unsafeIndex v (subkey k s))
 
 insert :: Key -> a -> HAMT a -> HAMT a
 insert k v t = insert' k 0 v t
@@ -69,14 +75,22 @@ insert' kx s x t
             if b .&. m == 0
                 then let l  = Leaf kx x
                          v' = unsafeTake i v ++ singleton l ++ unsafeDrop i v
-                         b' = b .|. m
-                     in BitmapIndexed b' v'
+                         b' = b .|. m in
+                     if b' == 0xFFFFFFFF
+                        then Full v'
+                        else BitmapIndexed b' v'
                 else {-# SCC "i-Bitmap-conflict" #-}
                     let  st  = unsafeIndex v i
                          st' = insert' kx (s+bitsPerSubkey) x st
                          v'  = {-# SCC "i-Bitmap-update" #-}
                                unsafeUpdate v (singleton (i, st'))
                      in BitmapIndexed b v'
+        Full v -> {-# SCC "i-Full" #-}
+            let i   = subkey kx s
+                st  = unsafeIndex v i
+                st' = insert' kx (s+bitsPerSubkey) x st
+                v'  = unsafeUpdate v (singleton (i, st'))
+            in Full v'
 
 -- too lazy
 fromList :: [(Key, a)] -> HAMT a
