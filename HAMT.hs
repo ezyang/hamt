@@ -12,7 +12,8 @@ type Bitmap = Word
 type Shift  = Int
 type Subkey = Int -- we need to use this to do shifts, so an Int it is
 
--- This is architecture dependent
+-- These architecture dependent constants
+
 bitsPerSubkey :: Int
 bitsPerSubkey = floor . logBase 2 . fromIntegral . bitSize $ (undefined :: Word)
 
@@ -24,17 +25,11 @@ data HAMT a = Empty
             | Leaf {-# UNPACK #-} !Key a
     deriving (Show)
 
-keyIndex :: Bitmap -> Subkey -> Int
-keyIndex b sk = maskIndex b (mask sk)
-
 maskIndex :: Bitmap -> Bitmap -> Int
 maskIndex b m = popCount (b .&. (m - 1))
 
-subkey :: Key -> Shift -> Subkey
-subkey w s = fromIntegral $ shiftR w s .&. subkeyMask
-
-mask :: Subkey -> Bitmap
-mask w = shiftL 1 w
+mask :: Key -> Shift -> Bitmap
+mask k s = shiftL 1 (fromIntegral $ shiftR k s .&. subkeyMask)
 
 empty :: HAMT a
 empty = Empty
@@ -49,14 +44,11 @@ lookup' k s t
         Leaf kx x
             | k == kx   -> Just x
             | otherwise -> Nothing
-        BitmapIndexed b v -> bitmapLookup k s b v
-
-bitmapLookup :: Key -> Shift -> Bitmap -> Vector (HAMT a) -> Maybe a
-bitmapLookup k s b v
-    = let sk = subkey k s in
-        if testBit b sk
-            then lookup' k (s+bitsPerSubkey) (unsafeIndex v (keyIndex b sk))
-            else Nothing
+        BitmapIndexed b v ->
+            let m  = mask k s in
+            if b .&. m == 0
+                then Nothing
+                else lookup' k (s+bitsPerSubkey) (unsafeIndex v (maskIndex b m))
 
 insert :: Key -> a -> HAMT a -> HAMT a
 insert k v t = insert' k 0 v t
@@ -69,23 +61,21 @@ insert' kx s x t
             | ky == kx  -> Leaf kx x
             | otherwise ->
                 let t' = BitmapIndexed m (singleton t)
-                    m  = mask (subkey ky s)
+                    m  = mask ky s
                 in insert' kx s x t'
         BitmapIndexed b v -> {-# SCC "i-Bitmap" #-}
-            let skx = subkey kx s
-                m   = mask skx
+            let m   = mask kx s
                 i   = maskIndex b m in
-            if testBit b skx
-                then {-# SCC "i-Bitmap-conflict" #-}
+            if b .&. m == 0
+                then let l  = Leaf kx x
+                         v' = take i v ++ singleton l ++ drop i v
+                         b' = b .|. m
+                     in BitmapIndexed b' v'
+                else {-# SCC "i-Bitmap-conflict" #-}
                     let  st  = unsafeIndex v i
                          st' = insert' kx (s+bitsPerSubkey) x st
                          v'  = {-# SCC "i-Bitmap-update" #-} unsafeUpdate v (singleton (i, st'))
                      in BitmapIndexed b v'
-                else
-                     let l  = Leaf kx x
-                         v' = take i v ++ singleton l ++ drop i v
-                         b' = b .|. m
-                     in BitmapIndexed b' v'
 
 -- too lazy
 fromList :: [(Key, a)] -> HAMT a
