@@ -16,5 +16,6 @@ ghci: libpopcount.so
 	ghci -lffi -lpopcount HAMT
 run-prof: HAMTTest-prof
 	./HAMTTest-prof 100000 +RTS -K1G -p
+all: HAMTTest IntMapTest PopCountTest HAMTTest-prof
 clean:
 	rm -f *.o *.hi *Test *-prof *.so

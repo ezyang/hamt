@@ -40,7 +40,7 @@ shiftRL x i = shiftR x i
 #endif
 
 data HAMT a = Empty
-            | BitmapIndexed {-# UNPACK #-} !Bitmap (Vector (HAMT a))
+            | BitmapIndexed {-# UNPACK #-} !Bitmap !(Vector (HAMT a))
             | Leaf {-# UNPACK #-} !Key a
     deriving (Show)
 
@@ -86,9 +86,9 @@ insert k v t = insert' k 0 v t
 insert' :: Key -> Shift -> a -> HAMT a -> HAMT a
 insert' kx s x t
     = case t of
-        Empty -> {-# SCC "i-Empty" #-} Leaf kx x
+        Empty -> Leaf kx x
         Leaf ky y
-            | ky == kx  -> {-# SCC "i-Leaf-replace" #-} Leaf kx x
+            | ky == kx  -> Leaf kx x
             | otherwise -> {-# SCC "i-Leaf-conflict" #-}
                 let t' = BitmapIndexed m (singleton t)
                     m  = mask (subkey ky s)
@@ -99,8 +99,7 @@ insert' kx s x t
                 i   = maskIndex b m in
             if testBit b skx
                 then {-# SCC "i-Bitmap-conflict" #-}
-                    let  i   = keyIndex b skx
-                         st  = myIndex v i
+                    let  st  = myIndex v i
                          st' = insert' kx (s+bitsPerSubkey) x st
                          v'  = update v (singleton (i, st'))
                      in BitmapIndexed b v'

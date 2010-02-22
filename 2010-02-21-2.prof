@@ -1,0 +1,64 @@
+	Sun Feb 21 19:55 2010 Time and Allocation Profiling Report  (Final)
+
+	   HAMTTest-prof +RTS -K1G -p -RTS 100000
+
+	total time  =        0.26 secs   (13 ticks @ 20 ms)
+	total alloc =  53,523,296 bytes  (excludes profiling overheads)
+
+COST CENTRE                    MODULE               %time %alloc
+
+i-Bitmap-conflict              HAMT                  61.5   45.6
+insert'                        HAMT                  15.4   20.8
+main                           Main                  15.4   18.7
+fromList                       HAMT                   7.7    4.5
+popCount                       PopCount               0.0    1.5
+subkey                         HAMT                   0.0    1.5
+shiftRL                        HAMT                   0.0    1.5
+myIndex                        HAMT                   0.0    1.1
+maskIndex                      HAMT                   0.0    3.1
+mask                           HAMT                   0.0    1.5
+
+
+                                                                                               individual    inherited
+COST CENTRE              MODULE                                               no.    entries  %time %alloc   %time %alloc
+
+MAIN                     MAIN                                                   1           0   0.0    0.0   100.0  100.0
+ main                    Main                                                 242           1  15.4   18.7   100.0  100.0
+  lookup                 HAMT                                                 262           1   0.0    0.0     0.0    0.0
+   lookup'               HAMT                                                 263           5   0.0    0.0     0.0    0.0
+    bitmapLookup         HAMT                                                 264           8   0.0    0.0     0.0    0.0
+     myIndex             HAMT                                                 268           4   0.0    0.0     0.0    0.0
+     keyIndex            HAMT                                                 267           4   0.0    0.0     0.0    0.0
+      maskIndex          HAMT                                                 270           4   0.0    0.0     0.0    0.0
+       popCount          PopCount                                             271           4   0.0    0.0     0.0    0.0
+      mask               HAMT                                                 269           4   0.0    0.0     0.0    0.0
+     subkey              HAMT                                                 265           4   0.0    0.0     0.0    0.0
+      shiftRL            HAMT                                                 266           4   0.0    0.0     0.0    0.0
+  fromList               HAMT                                                 243           1   7.7    4.5    84.6   81.3
+   insert                HAMT                                                 245      100000   0.0    0.0    76.9   76.8
+    insert'              HAMT                                                 246      103228  15.4   20.8    76.9   76.8
+     i-Bitmap-conflict   HAMT                                                 261      106351  61.5   45.6    61.5   46.7
+      myIndex            HAMT                                                 272        3224   0.0    1.1     0.0    1.1
+     mask                HAMT                                                 257      103223   0.0    1.5     0.0    1.5
+     i-Bitmap-insert     HAMT                                                 256          96   0.0    0.0     0.0    0.0
+     subkey              HAMT                                                 254      103223   0.0    1.5     0.0    3.1
+      shiftRL            HAMT                                                 255      103223   0.0    1.5     0.0    1.5
+     maskIndex           HAMT                                                 253      103223   0.0    3.1     0.0    4.6
+      popCount           PopCount                                             258      103223   0.0    1.5     0.0    1.5
+     i-Leaf-conflict     HAMT                                                 247           4   0.0    0.0     0.0    0.0
+      mask               HAMT                                                 252           4   0.0    0.0     0.0    0.0
+      subkey             HAMT                                                 248           4   0.0    0.0     0.0    0.0
+       shiftRL           HAMT                                                 249           4   0.0    0.0     0.0    0.0
+   empty                 HAMT                                                 244           1   0.0    0.0     0.0    0.0
+ CAF                     GHC.Show                                             232           1   0.0    0.0     0.0    0.0
+ CAF                     GHC.Read                                             210           1   0.0    0.0     0.0    0.0
+ CAF                     Text.Read.Lex                                        203           8   0.0    0.0     0.0    0.0
+ CAF                     GHC.Word                                             201           1   0.0    0.0     0.0    0.0
+ CAF                     GHC.Handle                                           187           2   0.0    0.0     0.0    0.0
+ CAF                     GHC.Conc                                             186           1   0.0    0.0     0.0    0.0
+ CAF                     HAMT                                                 157           7   0.0    0.0     0.0    0.0
+  insert'                HAMT                                                 259           0   0.0    0.0     0.0    0.0
+   i-Bitmap-insert       HAMT                                                 260           0   0.0    0.0     0.0    0.0
+  bitsPerSubkey          HAMT                                                 251           1   0.0    0.0     0.0    0.0
+  subkeyMask             HAMT                                                 250           1   0.0    0.0     0.0    0.0
+ CAF                     System.Environment                                   122           2   0.0    0.0     0.0    0.0
