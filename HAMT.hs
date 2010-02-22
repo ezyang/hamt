@@ -1,6 +1,3 @@
-{-# OPTIONS -cpp -fglasgow-exts #-}
-{-# LANGUAGE NoBangPatterns #-}
-
 module HAMT where
 
 import Prelude hiding (lookup, (++), take, drop)

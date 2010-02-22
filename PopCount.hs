@@ -1,5 +1,4 @@
-{-# OPTIONS -cpp -fglasgow-exts #-}
-{-# LANGUAGE NoBangPatterns, ForeignFunctionInterface #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
 {-# INCLUDE "popcount.h" #-}
 
 module PopCount (popCount, slowPopCount) where
