@@ -18,7 +18,6 @@ slowPopCount x = count' (bitSize x) x 0
   count' 0 _ acc = acc
   count' n x acc = count' (n-1) (x `shiftR` 1) (acc + if x .&. 1 == 1 then 1 else 0)
 
-{-# INLINE popCount #-}
 popCount :: Word -> Int
 popCount w = fromIntegral (c_popcount (fromIntegral w))
 
