@@ -6,18 +6,9 @@ module HAMT where
 import Prelude hiding (lookup, (++), take, drop)
 import Data.Vector hiding (empty, fromList, foldl)
 import Data.Bits
+import Data.Word
 
 import PopCount
-
-#if __GLASGOW_HASKELL__ >= 503
-import GHC.Word
-import GHC.Exts ( Word(..), Int(..), shiftRL# )
-#elif __GLASGOW_HASKELL__
-import Word
-import GlaExts ( Word(..), Int(..), shiftRL# )
-#else
-import Data.Word
-#endif
 
 type Key    = Word
 type Bitmap = Word
@@ -31,14 +22,6 @@ bitsPerSubkey = floor . logBase 2 . fromIntegral . bitSize $ (undefined :: Word)
 subkeyMask :: Bitmap
 subkeyMask = 1 `shiftL` bitsPerSubkey - 1
 
--- GHC fun (inline by unboxing)
-shiftRL :: Word -> Int -> Word
-#if __GLASGOW_HASKELL__
-shiftRL (W# x) (I# i) = W# (shiftRL# x i)
-#else
-shiftRL x i = shiftR x i
-#endif
-
 data HAMT a = Empty
             | BitmapIndexed {-# UNPACK #-} !Bitmap !(Vector (HAMT a))
             | Leaf {-# UNPACK #-} !Key a
@@ -51,7 +34,7 @@ maskIndex :: Bitmap -> Bitmap -> Int
 maskIndex b m = popCount (b .&. (m - 1))
 
 subkey :: Key -> Shift -> Subkey
-subkey w s = fromIntegral $ shiftRL w s .&. subkeyMask
+subkey w s = fromIntegral $ shiftR w s .&. subkeyMask
 
 mask :: Subkey -> Bitmap
 mask w = shiftL 1 w
