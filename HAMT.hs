@@ -86,23 +86,26 @@ insert k v t = insert' k 0 v t
 insert' :: Key -> Shift -> a -> HAMT a -> HAMT a
 insert' kx s x t
     = case t of
-        Empty -> Leaf kx x
+        Empty -> {-# SCC "i-Empty" #-} Leaf kx x
         Leaf ky y
-            | ky == kx  -> Leaf kx x
-            | otherwise -> insert' kx s x t'
-                where t' = BitmapIndexed m (singleton t)
-                      m = mask (subkey ky s)
+            | ky == kx  -> {-# SCC "i-Leaf-replace" #-} Leaf kx x
+            | otherwise -> {-# SCC "i-Leaf-conflict" #-}
+                let t' = BitmapIndexed m (singleton t)
+                    m  = mask (subkey ky s)
+                in insert' kx s x t'
         BitmapIndexed b v ->
             let skx = subkey kx s
                 m   = mask skx
                 i   = maskIndex b m in
             if testBit b skx
-                then let i   = keyIndex b skx
+                then {-# SCC "i-Bitmap-conflict" #-}
+                    let  i   = keyIndex b skx
                          st  = myIndex v i
                          st' = insert' kx (s+bitsPerSubkey) x st
                          v'  = update v (singleton (i, st'))
                      in BitmapIndexed b v'
-                else let l = Leaf kx x
+                else {-# SCC "i-Bitmap-insert" #-}
+                     let l  = Leaf kx x
                          v' = take i v ++ singleton l ++ drop i v
                          b' = b .|. m
                      in BitmapIndexed b' v'
