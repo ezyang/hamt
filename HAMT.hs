@@ -89,10 +89,10 @@ insert' kx s x t
             let i   = subkey kx s
                 st  = unsafeIndex v i
                 st' = insert' kx (s+bitsPerSubkey) x st
-                v'  = unsafeUpdate v (singleton (i, st'))
+                v'  = {-# SCC "i-Full-update" #-}
+                      unsafeUpdate v (singleton (i, st'))
             in Full v'
 
--- too lazy
+-- lazy, but that's not necessarily a bad thing
 fromList :: [(Key, a)] -> HAMT a
 fromList = foldl (flip $ uncurry insert) empty
-
