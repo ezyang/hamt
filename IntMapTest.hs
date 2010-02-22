@@ -3,5 +3,5 @@ import Data.IntMap
 
 main = do
     args <- getArgs
-    let m = fromList [(i,i) | i <- [1..(read $ head args)]] :: IntMap Int
-    print $ m ! 100
+    let m = {-# SCC "construct-intmap" #-} fromList [(i,i) | i <- [1..(read $ head args)]] :: IntMap Int
+    print $ {-# SCC "lookup-intmap" #-} m ! 100

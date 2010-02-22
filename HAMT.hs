@@ -71,13 +71,11 @@ lookup' k s t
             | otherwise -> Nothing
         BitmapIndexed b v -> bitmapLookup k s b v
 
-myIndex v i = v ! i -- make unsafe later
-
 bitmapLookup :: Key -> Shift -> Bitmap -> Vector (HAMT a) -> Maybe a
 bitmapLookup k s b v
     = let sk = subkey k s in
         if testBit b sk
-            then lookup' k (s+bitsPerSubkey) (myIndex v (keyIndex b sk))
+            then lookup' k (s+bitsPerSubkey) (unsafeIndex v (keyIndex b sk))
             else Nothing
 
 insert :: Key -> a -> HAMT a -> HAMT a
@@ -89,21 +87,21 @@ insert' kx s x t
         Empty -> Leaf kx x
         Leaf ky y
             | ky == kx  -> Leaf kx x
-            | otherwise -> {-# SCC "i-Leaf-conflict" #-}
+            | otherwise ->
                 let t' = BitmapIndexed m (singleton t)
                     m  = mask (subkey ky s)
                 in insert' kx s x t'
-        BitmapIndexed b v ->
+        BitmapIndexed b v -> {-# SCC "i-Bitmap" #-}
             let skx = subkey kx s
                 m   = mask skx
                 i   = maskIndex b m in
             if testBit b skx
                 then {-# SCC "i-Bitmap-conflict" #-}
-                    let  st  = myIndex v i
+                    let  st  = unsafeIndex v i
                          st' = insert' kx (s+bitsPerSubkey) x st
-                         v'  = update v (singleton (i, st'))
+                         v'  = {-# SCC "i-Bitmap-update" #-} unsafeUpdate v (singleton (i, st'))
                      in BitmapIndexed b v'
-                else {-# SCC "i-Bitmap-insert" #-}
+                else
                      let l  = Leaf kx x
                          v' = take i v ++ singleton l ++ drop i v
                          b' = b .|. m
