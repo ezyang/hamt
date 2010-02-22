@@ -60,21 +60,20 @@ insert' kx s x t
         Leaf ky y
             | ky == kx  -> Leaf kx x
             | otherwise ->
-                let t' = BitmapIndexed m (singleton t)
-                    m  = mask ky s
-                in insert' kx s x t'
+                insert' kx s x $ BitmapIndexed (mask ky s) (singleton t)
         BitmapIndexed b v -> {-# SCC "i-Bitmap" #-}
             let m   = mask kx s
                 i   = maskIndex b m in
             if b .&. m == 0
                 then let l  = Leaf kx x
-                         v' = take i v ++ singleton l ++ drop i v
+                         v' = unsafeTake i v ++ singleton l ++ unsafeDrop i v
                          b' = b .|. m
                      in BitmapIndexed b' v'
                 else {-# SCC "i-Bitmap-conflict" #-}
                     let  st  = unsafeIndex v i
                          st' = insert' kx (s+bitsPerSubkey) x st
-                         v'  = {-# SCC "i-Bitmap-update" #-} unsafeUpdate v (singleton (i, st'))
+                         v'  = {-# SCC "i-Bitmap-update" #-}
+                               unsafeUpdate v (singleton (i, st'))
                      in BitmapIndexed b v'
 
 -- too lazy
