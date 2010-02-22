@@ -1,9 +1,11 @@
 module HAMT where
 
-import Prelude hiding (lookup, (++), take, drop)
-import Data.Vector hiding (empty, fromList, foldl)
+import Prelude hiding (lookup, (++))
 import Data.Bits
 import Data.Word
+
+import Data.Vector (Vector, (++), singleton, unsafeDrop, unsafeTake, unsafeIndex, unsafeUpdate)
+import qualified Data.Vector as Vector
 
 import PopCount
 
