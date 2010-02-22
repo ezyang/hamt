@@ -45,7 +45,7 @@ lookup' k s t
             | k == kx   -> Just x
             | otherwise -> Nothing
         BitmapIndexed b v ->
-            let m  = mask k s in
+            let m = mask k s in
             if b .&. m == 0
                 then Nothing
                 else lookup' k (s+bitsPerSubkey) (unsafeIndex v (maskIndex b m))

@@ -19,8 +19,8 @@ HAMTTest-prof: popcount.o HAMT.hs HAMTTest.hs PopCount.hs
 ghci: libpopcount.so HAMT.hs PopCount.hs
 	ghci -lffi -lpopcount HAMT
 run-prof: HAMTTest-prof
-	./HAMTTest-prof 100000 +RTS -p
+	./HAMTTest-prof 512000 +RTS -p
 run-IntMapTest-prof: IntMapTest-prof
-	./IntMapTest-prof 100000 +RTS -p
+	./IntMapTest-prof 512000 +RTS -p
 clean:
 	rm -f *.o *.hi *Test *-prof *.so
